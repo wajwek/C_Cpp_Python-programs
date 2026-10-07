@@ -41,7 +41,7 @@ void handle_client(int client_fd, int counter) {
         }
     }
 
-    printf("Połączenie nr. %d zakończone\n", counter);
+    printf("Connection no. %d finished\n", counter);
     fclose(file);
     close(client_fd);
 }
