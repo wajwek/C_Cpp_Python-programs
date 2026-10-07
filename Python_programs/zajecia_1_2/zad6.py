@@ -1,0 +1,3 @@
+a = int(input("Podaj a:"))
+suma = (1 + a)*a/2
+print(suma)
