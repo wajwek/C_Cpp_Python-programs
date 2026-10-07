@@ -29,7 +29,7 @@ StringData read_string(void) {
             }
             str = temp;
         }
-        str[len++] = (char)c; // first writes to str[len], then increments len by 1
+        str[len++] = (char)c;
     }
     str[len] = '\0';
 
@@ -39,29 +39,8 @@ StringData read_string(void) {
     return data;
 }
 
-bool isPalindrome(const char *str, int len) {
+bool is_palindrome(const char *str, int len) {
     int start = 0;
     int end = len - 1;
     while (start < end) {
-        if (str[start] != str[end]) {
-            return false;
-        }
-        start++;
-        end--;
-    }
-    return true;
-}
-
-int main(void) {
-    printf("Word to check: \n");
-    StringData data = read_string();
-
-    if (isPalindrome(data.str, data.len)) {
-        printf("The word '%s' is a palindrome.\n", data.str);
-    } else {
-        printf("The word '%s' is not a palindrome.\n", data.str);
-    }
-
-    free(data.str);
-    return 0;
-}
+        if (str
