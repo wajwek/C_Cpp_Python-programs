@@ -1,53 +1,52 @@
-
 from collections import deque
 
 
-def sortowanie_topologiczne(graf):
-    # 1. Inicjalizujemy słownik stopni wejściowych (dla każdego węzła na start 0)
-    stopnie_wejsciowe = {wezel: 0 for wezel in graf}
+def topological_sort(graph):
+    # 1. Initialize in-degree dictionary (0 for each node initially)
+    in_degree = {node: 0 for node in graph}
 
-    # Liczymy faktyczne stopnie wejściowe
-    for wezel in graf:
-        for sasiad in graf[wezel]:
-            stopnie_wejsciowe[sasiad] += 1
+    # Count actual in-degrees
+    for node in graph:
+        for neighbor in graph[node]:
+            in_degree[neighbor] += 1
 
-    # 2. Szukamy węzłów, które nie mają żadnych wymagań wstępnych (wartość 0)
-    kolejka = deque([wezel for wezel in graf if stopnie_wejsciowe[wezel] == 0])
+    # 2. Find nodes with no prerequisites (value 0)
+    queue = deque([node for node in graph if in_degree[node] == 0])
 
-    posortowana_lista = []
+    sorted_list = []
 
-    # 3. Zaczynamy przetwarzanie kolejki
-    while kolejka:
-        # Pobieramy węzeł bez wymagań
-        obecny = kolejka.popleft()
-        posortowana_lista.append(obecny)
+    # 3. Start processing the queue
+    while queue:
+        # Get node without prerequisites
+        current = queue.popleft()
+        sorted_list.append(current)
 
-        # "Wykonaliśmy" zadanie, więc jego sąsiedzi mają o jedno wymaganie mniej
-        for sasiad in graf[obecny]:
-            stopnie_wejsciowe[sasiad] -= 1
+        # "Completed" the task, so its neighbors have one less prerequisite
+        for neighbor in graph[current]:
+            in_degree[neighbor] -= 1
 
-            # Jeśli sąsiad stracił wszystkie wymagania, jest gotowy do wykonania!
-            if stopnie_wejsciowe[sasiad] == 0:
-                kolejka.append(sasiad)
+            # If neighbor lost all prerequisites, it's ready to execute!
+            if in_degree[neighbor] == 0:
+                queue.append(neighbor)
 
-    # 4. Sprawdzenie na koniec: czy udało się posortować wszystkie węzły?
-    # Jeśli lista wynikowa jest krótsza niż liczba wszystkich węzłów, to znaczy,
-    # że w grafie był cykl i sortowanie topologiczne jest niemożliwe.
-    if len(posortowana_lista) == len(graf):
-        return posortowana_lista
+    # 4. Final check: did we manage to sort all nodes?
+    # If the result list is shorter than the total number of nodes, it means
+    # there was a cycle in the graph and topological sort is impossible.
+    if len(sorted_list) == len(graph):
+        return sorted_list
     else:
-        return "Błąd: W grafie wykryto cykl! To nie jest DAG."
+        return "Error: Cycle detected in the graph! This is not a DAG."
 
 print()
-# Nasz testowy graf - reprezentacja ubierania się:
-# Skarpetki(A), Buty(B), Bielizna(C), Spodnie(D)
-# Zależności: Skarpetki -> Buty | Bielizna -> Spodnie -> Buty
-graf_ubran = {
-    'Skarpetki': ['Buty', 'Spodnie'],
-    'Bielizna': ['Spodnie', 'Skarpetki'],
-    'Spodnie': ['Buty'],
-    'Buty': []  # Koniec procesu dla tej ścieżki
+# Our test graph - dressing representation:
+# Socks(A), Shoes(B), Underwear(C), Pants(D)
+# Dependencies: Socks -> Shoes | Underwear -> Pants -> Shoes
+clothing_graph = {
+    'Socks': ['Shoes', 'Pants'],
+    'Underwear': ['Pants', 'Socks'],
+    'Pants': ['Shoes'],
+    'Shoes': []  # End of process for this path
 }
 
-wynik = sortowanie_topologiczne(graf_ubran)
-print(f"Kolejność ubierania: {wynik}")
+result = topological_sort(clothing_graph)
+print(f"Dressing order: {result}")

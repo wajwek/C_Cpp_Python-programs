@@ -1,64 +1,64 @@
 class Graph:
     def __init__(self, graph_matrix):
-        # Inicjalizujemy graf macierzą sąsiedztwa
+        # Initialize graph with adjacency matrix
         self.graph = graph_matrix
         self.ROW = len(graph_matrix)
 
     def bfs(self, source, sink, parent):
-        # Tablica do śledzenia odwiedzonych węzłów
+        # Array to track visited nodes
         visited = [False] * self.ROW
 
-        # Kolejka do BFS
+        # Queue for BFS
         queue = []
         queue.append(source)
         visited[source] = True
 
-        # Standardowa pętla BFS
+        # Standard BFS loop
         while queue:
             u = queue.pop(0)
 
-            # Przeglądamy wszystkich sąsiadów węzła u
+            # Check all neighbors of node u
             for v, capacity in enumerate(self.graph[u]):
-                # Jeśli sąsiad nieodwiedzony i krawędź ma jeszcze przepustowość
+                # If neighbor is unvisited and edge still has capacity
                 if not visited[v] and capacity > 0:
                     queue.append(v)
                     visited[v] = True
-                    parent[v] = u  # TUTAJ ZAPISUJEMY ŚLAD!
+                    parent[v] = u  # SAVE THE TRAIL HERE!
 
-                    # Jeśli dotarliśmy do ujścia, przerywamy - mamy najkrótszą ścieżkę
+                    # If we reached the sink, break - we found the shortest path
                     if v == sink:
                         return True
 
-        # Jeśli kolejka opustoszała, a nie dotarliśmy do ujścia, ścieżek brak
+        # If queue is empty and we haven't reached the sink, no path exists
         return False
 
     def edmonds_karp(self, source, sink):
-        # Tablica 'parent' przechowa naszą wyznaczoną ścieżkę
+        # The 'parent' array will store our determined path
         parent = [-1] * self.ROW
         max_flow = 0
 
-        # Dopóki BFS znajduje jakąkolwiek ścieżkę powiększającą
+        # While BFS finds any augmenting path
         while self.bfs(source, sink, parent):
 
-            # 1. ETAP ODTWARZANIA ŚCIEŻKI I SZUKANIA WĄSKIEGO GARDŁA
+            # 1. PATH RECONSTRUCTION AND BOTTLENECK SEARCH STAGE
             path_flow = float("Inf")
             s = sink
-            # Cofamy się od ujścia do źródła za pomocą tablicy 'parent'
+            # Trace back from sink to source using the 'parent' array
             while s != source:
                 path_flow = min(path_flow, self.graph[parent[s]][s])
                 s = parent[s]
 
             max_flow += path_flow
 
-            # 2. ETAP AKTUALIZACJI SIECI REZYDUALNEJ
+            # 2. RESIDUAL NETWORK UPDATE STAGE
             v = sink
-            # Znowu cofamy się od ujścia do źródła, aktualizując krawędzie
+            # Trace back again from sink to source, updating edges
             while v != source:
                 u = parent[v]
-                # Zmniejszamy przepustowość krawędzi, którą poszliśmy (w przód)
+                # Decrease capacity of the forward edge we traversed
                 self.graph[u][v] -= path_flow
 
-                # Zwiększamy przepustowość krawędzi powrotnej ("pod prąd")
+                # Increase capacity of the backward edge ("against the current")
                 self.graph[v][u] += path_flow
 
                 v = u
